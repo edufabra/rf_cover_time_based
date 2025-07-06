@@ -1,4 +1,5 @@
 # requirements_test.txt
+ruff
 # Pin dependencies to ensure consistent testing environments locally and in CI.
 # Versions are based on a stable CI run.
 pytest==8.3.4
