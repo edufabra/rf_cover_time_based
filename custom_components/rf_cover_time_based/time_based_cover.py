@@ -114,6 +114,11 @@ class TimeBasedCover(CoverEntity, RestoreEntity):
         )
         self.config_entry.add_update_listener(self._handle_options_update)
 
+        # THE FIX: Register the updater cancellation as a cleanup callback.
+        # This ensures that any running timer is stopped when the entity is
+        # unloaded, preventing the "Lingering timer" error in tests.
+        self.async_on_remove(self._cancel_updater)
+
     async def _async_restore_state(self) -> None:
         """Restore the last known state of the cover."""
         last_state = await self.async_get_last_state()
@@ -132,8 +137,6 @@ class TimeBasedCover(CoverEntity, RestoreEntity):
 
         self.travel_calculator.set_known_position(restored_position)
         self._attr_current_cover_position = self.travel_calculator.current_position()
-
-        # THE FIX: Use the `current_cover_position` property, not a method.
         self._attr_is_closed = self.current_cover_position == 0
 
     @callback
