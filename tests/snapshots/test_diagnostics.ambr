@@ -1,31 +1,47 @@
 # serializer version: 1
 # name: test_entry_diagnostics
   dict({
-    'config_data': dict({
-      'close_command': '**REDACTED**',
-      'device_class': 'shutter',
-      'name': 'Test Shutter',
-      'open_command': '**REDACTED**',
-      'remote_entity': 'remote.test_gateway',
-      'stop_command': '**REDACTED**',
-      'travelling_time_down': 10,
-      'travelling_time_up': 10,
+    'config_entry': dict({
+      'created_at': '2025-07-06T17:58:40.801918+00:00',
+      'data': dict({
+        'close_command': 'b64:close_code',
+        'device_class': 'shutter',
+        'name': 'Test Shutter',
+        'open_command': 'b64:open_code',
+        'remote_entity': 'remote.test_gateway',
+        'stop_command': 'b64:stop_code',
+        'travelling_time_down': 10,
+        'travelling_time_up': 10,
+      }),
+      'disabled_by': None,
+      'discovery_keys': dict({
+      }),
+      'domain': 'rf_cover_time_based',
+      'entry_id': 'test-shutter',
+      'minor_version': 1,
+      'modified_at': '2025-07-06T17:58:40.801924+00:00',
+      'options': dict({
+      }),
+      'pref_disable_new_entities': False,
+      'pref_disable_polling': False,
+      'source': 'user',
+      'subentries': list([
+      ]),
+      'title': 'Mock Title',
+      'unique_id': None,
+      'version': 1,
     }),
-    'config_entry_id': 'test-shutter',
     'cover_entity': dict({
       'attributes': dict({
-        'device_class': 'shutter',
-        'friendly_name': 'Test Shutter',
-        'supported_features': <CoverEntityFeature: 15>,
       }),
-      'entity_id': 'cover.test_shutter',
-      'state': 'unavailable',
+      'entity_id': None,
+      'state': 'not_found',
     }),
     'remote_gateway': dict({
       'attributes': dict({
       }),
       'entity_id': 'remote.test_gateway',
-      'state': 'not_configured',
+      'state': 'not_found',
     }),
   })
 # ---
