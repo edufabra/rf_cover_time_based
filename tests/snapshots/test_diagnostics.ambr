@@ -11,23 +11,22 @@
       'travelling_time_down': 10,
       'travelling_time_up': 10,
     }),
-    'config_entry_id': 'test_entry_id_1',
+    'config_entry_id': 'test-shutter',
     'cover_entity': dict({
       'attributes': dict({
         'assumed_state': True,
-        'current_position': 100,
         'device_class': 'shutter',
         'friendly_name': 'Test Shutter',
         'supported_features': <CoverEntityFeature: 15>,
       }),
       'entity_id': 'cover.test_shutter',
-      'state': 'open',
+      'state': 'unavailable',
     }),
     'remote_gateway': dict({
       'attributes': dict({
       }),
       'entity_id': 'remote.test_gateway',
-      'state': 'on',
+      'state': 'not_configured',
     }),
   })
 # ---

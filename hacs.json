@@ -1,6 +1,5 @@
 {
   "name": "RF Cover Time Based",
   "homeassistant": "2023.1.0",
-  "render_readme": true,
-  "iot_class": "calculated"
+  "render_readme": true
 }

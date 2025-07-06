@@ -95,9 +95,11 @@ class TravelCalculator:
         else:
             position_change = (elapsed_time / travel_time) * 100
             if self.is_opening():
-                self._position = min(self._position + position_change, self._target_position)
+                new_position = self._position + position_change
+                self._position = min(new_position, self._target_position)
             else:  # Closing
-                self._position = max(self._position - position_change, self._target_position)
+                new_position = self._position - position_change
+                self._position = max(new_position, self._target_position)
 
         if self.current_position() == self._target_position:
             self._travel_status = TravelStatus.STOPPED
