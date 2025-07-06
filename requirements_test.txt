@@ -1,20 +1,8 @@
-# Core Home Assistant library for type hinting and testing
-homeassistant
-
-# Core testing framework
-pytest
-
-# Test coverage reporting
+# requirements_test.txt
+# Pin dependencies to ensure consistent testing environments locally and in CI.
+# Versions are based on a stable CI run.
+pytest==8.3.4
+pytest-homeassistant-custom-component==0.13.205
+syrupy==4.8.0
 pytest-cov
-
-# Fixture for mocking objects
-pytest-mock
-
-# The missing library for testing Home Assistant custom components
-pytest-homeassistant-custom-component
-
-# Snapshot testing library
-syrupy
-
-# Linter and code formatter
-ruff
+# Add any other direct testing dependencies here
