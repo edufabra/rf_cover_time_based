@@ -24,7 +24,7 @@
     },
     "error": {},
     "abort": {
-      "no_remotes_found": "No se han encontradoh entidades de tipo 'remote'. Por favor añade una integración remota (como Broadlink o Tuya) y configura al menos una entidad remota antes de añadir esta integración."
+      "no_remotes_found": "No se han encontrado entidades de tipo 'remote'. Por favor añade una integración remota (como Broadlink o Tuya) y configura al menos una entidad remota antes de añadir esta integración."
     }
   },
   "options": {
