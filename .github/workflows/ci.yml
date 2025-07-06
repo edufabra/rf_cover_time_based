@@ -1,14 +1,31 @@
-# This workflow runs tests and linting on every push and pull request.
-name: CI
+# This workflow runs HACS validation, tests, and linting.
+name: CI & Validation
 
 on:
   push:
     branches: ["main"]
   pull_request:
     branches: ["main"]
+  schedule:
+    # Run weekly to catch any breaking changes from HACS or Home Assistant.
+    - cron: "0 0 * * 0"
 
 jobs:
+  # This job is required for HACS to validate your integration.
+  hacs_validation:
+    name: HACS Validation
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Checkout the code
+        uses: "actions/checkout@v4"
+      - name: HACS Validation Action
+        uses: "hacs/action@main"
+        with:
+          category: "integration"
+
+  # This job runs your own quality checks.
   lint_and_test:
+    name: Linting and Testing
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the code
