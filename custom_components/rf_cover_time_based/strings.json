@@ -1,0 +1,44 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "RF Time Based Cover Setup",
+        "description": "Enter the details for your time-based cover.",
+        "data": {
+          "name": "Name",
+          "remote_entity": "Remote Entity",
+          "open_command": "Open Command",
+          "close_command": "Close Command",
+          "stop_command": "Stop Command",
+          "travelling_time_down": "Travel Time Down (seconds)",
+          "travelling_time_up": "Travel Time Up (seconds)",
+          "device_class": "Device Class"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to the remote entity. Please check the entity ID.",
+      "unknown": "An unknown error occurred."
+    },
+    "abort": {
+      "already_configured": "This device is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "RF Time Based Cover Options",
+        "description": "Update the settings for your time-based cover.",
+        "data": {
+          "remote_entity": "Remote Entity",
+          "open_command": "Open Command",
+          "close_command": "Close Command",
+          "stop_command": "Stop Command",
+          "travelling_time_down": "Travel Time Down (seconds)",
+          "travelling_time_up": "Travel Time Up (seconds)",
+          "device_class": "Device Class"
+        }
+      }
+    }
+  }
+}

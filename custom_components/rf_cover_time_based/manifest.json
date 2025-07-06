@@ -1,0 +1,14 @@
+{
+  "domain": "rf_cover_time_based",
+  "name": "RF Cover Time Based",
+  "version": "1.0.0",
+  "documentation": "https://github.com/edufabra/rf_cover_time_based",
+  "issue_tracker": "https://github.com/edufabra/rf_cover_time_based/issues",
+  "codeowners": ["@edufabra"],
+  "config_flow": true,
+  "integration_type": "entity",
+  "dependencies": ["remote"],
+  "after_dependencies": ["broadlink", "tuya"],
+  "iot_class": "calculated",
+  "quality_scale": "platinum"
+}

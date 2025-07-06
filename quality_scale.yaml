@@ -1,0 +1,30 @@
+# This file tracks the progress of the integration's quality scale.
+# https://developers.home-assistant.io/docs/core/integration-quality-scale/
+domain: rf_cover_time_based
+
+rules:
+  # Silver requirements
+  iot_class: done
+
+  # Gold requirements
+  config_flow: done
+  unique_id: done
+  device_info: done
+
+  # Platinum requirements
+  options_flow: done
+  restore_state: done
+  diagnostics: done
+
+  # Other important rules for quality and user experience
+  assumed_state: done
+  translation_key: done
+
+  # Documentation requirements
+  docs_high_level_description: done
+  docs_configuration: done
+  docs_options: done
+  docs_entities: done
+  docs_services:
+    status: exempt
+    comment: "This integration uses standard cover services and does not define any custom services."

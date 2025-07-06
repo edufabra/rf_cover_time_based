@@ -1,0 +1,47 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configuración del dispositivo de cubierta RF.",
+        "description": "Introduce los detalles para tu dispositivo de cubierta (persiana, toldo, puerta de parking, etc...) controlado por RF.",
+        "data": {
+          "name": "Nombre",
+          "remote_entity": "Entidad remota que controla el dispositivo (Gateway RF/IR)",
+          "travelling_time_down": "Tiempo que tarda en bajar (segundos)",
+          "travelling_time_up": "Tiempo que tarda en subir (segundos)",
+          "device_class": "Clase de Dispositivo"
+        }
+      },
+      "rf_codes": {
+        "title": "Códigos de RF (Radio-Frecuencia)",
+        "description": "Introduce los comandos RF en formato base64 para cada acción. (p. ej., b64:JgAcAB0dHB4...)",
+        "data": {
+          "open_command": "Código RF para Abrir",
+          "close_command": "Código RF para Cerrar",
+          "stop_command": "Código para Detener"
+        }
+      }
+    },
+    "error": {},
+    "abort": {
+      "no_remotes_found": "No se han encontradoh entidades de tipo 'remote'. Por favor añade una integración remota (como Broadlink o Tuya) y configura al menos una entidad remota antes de añadir esta integración."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Configuración del dispositivo de cubierta RF.",
+        "description": "Actualiza los detalles para tu dispositivo de cubierta (persiana, toldo, puerta de parking, etc...) controlado por RF.",
+        "data": {
+          "remote_entity": "Entidad remota que controla el dispositivo (Gateway RF/IR)",
+          "travelling_time_down": "Tiempo que tarda en bajar (segundos)",
+          "travelling_time_up": "Tiempo que tarda en subir (segundos)",
+          "open_command": "Código RF para Abrir",
+          "close_command": "Código RF para Cerrar",
+          "stop_command": "Código RF para Detener",
+          "device_class": "Clase de Dispositivo"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configuració del dispositiu de coberta RF.",
+        "description": "Introdueix els detalls per al teu dispositiu de coberta (persiana, tendal, porta de pàrquing, etc...) controlat per RF.",
+        "data": {
+          "name": "Nom",
+          "remote_entity": "Entitat remota que controla el dispositiu (Gateway RF/IR)",
+          "travelling_time_down": "Temps que triga en baixar (segons)",
+          "travelling_time_up": "Temps que triga en pujar (segons)",
+          "device_class": "Classe de Dispositiu"
+        }
+      },
+      "rf_codes": {
+        "title": "Codis de RF (Ràdio-Frequència)",
+        "description": "Introdueix les comandes RF en format base64 per a cada acció. (p. ex., b64:JgAcAB0dHB4...)",
+        "data": {
+          "open_command": "Codi RF per Obrir",
+          "close_command": "Codi RF per Tancar",
+          "stop_command": "Codi per Aturar"
+        }
+      }
+    },
+    "error": {},
+    "abort": {
+      "no_remotes_found": "No hi ha entitats de tipus 'remote'. Si us plau, afegeix una integració remota (com Broadlink o Tuya) i configura almenys una entitat remota abans d'afegir aquesta integració."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Configuració del dispositiu de coberta RF.",
+        "description": "Actualitza els detalls per al teu dispositiu de coberta (persiana, tendal, porta de pàrquing, etc...) controlat per RF.",
+        "data": {
+          "remote_entity": "Entitat remota que controla el dispositiu (Gateway RF/IR)",
+          "travelling_time_down": "Temps que triga en baixar (segons)",
+          "travelling_time_up": "Temps que triga en pujar (segons)",
+          "open_command": "Codi RF per Obrir",
+          "close_command": "Codi RF per Tancar",
+          "stop_command": "Codi RF per Aturar",
+          "device_class": "Classe de Dispositiu"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+# serializer version: 1
+# name: test_entry_diagnostics
+  dict({
+    'config_data': dict({
+      'close_command': '**REDACTED**',
+      'device_class': 'shutter',
+      'name': 'Test Shutter',
+      'open_command': '**REDACTED**',
+      'remote_entity': 'remote.test_gateway',
+      'stop_command': '**REDACTED**',
+      'travelling_time_down': 10,
+      'travelling_time_up': 10,
+    }),
+    'config_entry_id': 'test_entry_id_1',
+    'cover_entity': dict({
+      'attributes': dict({
+        'assumed_state': True,
+        'current_position': 100,
+        'device_class': 'shutter',
+        'friendly_name': 'Test Shutter',
+        'supported_features': <CoverEntityFeature: 15>,
+      }),
+      'entity_id': 'cover.test_shutter',
+      'state': 'open',
+    }),
+    'remote_gateway': dict({
+      'attributes': dict({
+      }),
+      'entity_id': 'remote.test_gateway',
+      'state': 'on',
+    }),
+  })
+# ---

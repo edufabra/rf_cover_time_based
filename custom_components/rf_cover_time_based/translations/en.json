@@ -1,0 +1,39 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "RF Cover Time Based Setup",
+        "description": "Please configure your time-based RF cover.",
+        "data": {
+          "name": "Name",
+          "remote_entity": "Remote Entity",
+          "travelling_time_down": "Travel Time Down (seconds)",
+          "travelling_time_up": "Travel Time Up (seconds)",
+          "open_command": "Open Command",
+          "close_command": "Close Command",
+          "stop_command": "Stop Command",
+          "device_class": "Device Class"
+        }
+      }
+    },
+    "error": {},
+    "abort": {
+      "no_remotes_found": "No remote entities found. Please add a remote integration (like Broadlink or Tuya) and configure at least one remote entity before adding this integration."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Edit RF Cover Settings",
+        "data": {
+          "travelling_time_down": "Travel Time Down (seconds)",
+          "travelling_time_up": "Travel Time Up (seconds)",
+          "open_command": "Open Command",
+          "close_command": "Close Command",
+          "stop_command": "Stop Command",
+          "device_class": "Device Class"
+        }
+      }
+    }
+  }
+}
