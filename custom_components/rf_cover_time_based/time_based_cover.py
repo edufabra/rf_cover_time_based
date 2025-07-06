@@ -114,7 +114,7 @@ class TimeBasedCover(CoverEntity, RestoreEntity):
         )
         self.config_entry.add_update_listener(self._handle_options_update)
 
-        # THE FIX: Register the updater cancellation as a cleanup callback.
+        # Register the updater cancellation as a cleanup callback.
         # This ensures that any running timer is stopped when the entity is
         # unloaded, preventing the "Lingering timer" error in tests.
         self.async_on_remove(self._cancel_updater)
@@ -156,14 +156,18 @@ class TimeBasedCover(CoverEntity, RestoreEntity):
         )
         self.async_write_ha_state()
 
+    def _get_command_for_direction(self, direction: TravelStatus) -> str:
+        """Get the appropriate command based on the direction of travel."""
+        is_awning = self.device_class == "awning"
+        if direction == TravelStatus.OPENING:
+            return self._close_command if is_awning else self._open_command
+        # Assumes direction is TravelStatus.CLOSING
+        return self._open_command if is_awning else self._close_command
+
     async def async_close_cover(self, **kwargs: Any) -> None:
         """Close the cover."""
         if self.travel_calculator.start_travel(0):
-            command = (
-                self._open_command
-                if self.device_class == "awning"
-                else self._close_command
-            )
+            command = self._get_command_for_direction(TravelStatus.CLOSING)
             await self._async_handle_command(command)
             self._schedule_updater()
             self.async_write_ha_state()
@@ -171,11 +175,7 @@ class TimeBasedCover(CoverEntity, RestoreEntity):
     async def async_open_cover(self, **kwargs: Any) -> None:
         """Open the cover."""
         if self.travel_calculator.start_travel(100):
-            command = (
-                self._close_command
-                if self.device_class == "awning"
-                else self._open_command
-            )
+            command = self._get_command_for_direction(TravelStatus.OPENING)
             await self._async_handle_command(command)
             self._schedule_updater()
             self.async_write_ha_state()
@@ -195,18 +195,7 @@ class TimeBasedCover(CoverEntity, RestoreEntity):
         travel_direction = self.travel_calculator.start_travel(target_position)
 
         if travel_direction:
-            if travel_direction == TravelStatus.OPENING:
-                command = (
-                    self._close_command
-                    if self.device_class == "awning"
-                    else self._open_command
-                )
-            else:  # Closing
-                command = (
-                    self._open_command
-                    if self.device_class == "awning"
-                    else self._close_command
-                )
+            command = self._get_command_for_direction(travel_direction)
             await self._async_handle_command(command)
             self._schedule_updater()
             self.async_write_ha_state()
