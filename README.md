@@ -87,3 +87,7 @@ If you need to adjust the travel times or other settings after the initial setup
 2.  Find the "RF Cover Time Based" integration entry you wish to change.
 3.  Click **Configure**.
 4.  You will be presented with the same form, where you can update the values as needed.
+
+## Acknowledgements
+This integration is heavily inspired by the original work of [nagyrobi/home-assistant-custom-components-cover-rf-time-based](https://github.com/nagyrobi/home-assistant-custom-components-cover-rf-time-based). That project, which is now archived and unmaintained, served as the foundation for creating this modern version, which is fully configurable through the UI and adapted to the current Home Assistant architecture.
+
