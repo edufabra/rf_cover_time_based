@@ -24,6 +24,12 @@ class TravelCalculator:
 
     def __init__(self, travel_time_down: float, travel_time_up: float):
         """Initialize the travel calculator."""
+        # Add validation to ensure travel times are not negative.
+        # This makes the class more robust against invalid configuration by
+        # failing early and clearly if provided with nonsensical data.
+        if travel_time_down < 0 or travel_time_up < 0:
+            raise ValueError("Travel time cannot be negative.")
+
         self._travel_time_down = travel_time_down
         self._travel_time_up = travel_time_up
         self._position: float = 100.0

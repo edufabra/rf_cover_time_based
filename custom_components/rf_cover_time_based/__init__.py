@@ -1,11 +1,14 @@
+# custom_components/rf_cover_time_based/__init__.py
+
 """The RF Cover Time Based integration."""
 from __future__ import annotations
 
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 
-# List of platforms that this integration will create.
-PLATFORMS: list[str] = ["cover"]
+# Define the platforms that this integration will create.
+PLATFORMS: list[Platform] = [Platform.COVER]
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up from a config entry."""
@@ -17,7 +20,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     return True
 
-
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
     # This is the central point to forward the unload to the platforms.
@@ -25,5 +27,5 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Handle an options update."""
+    """Handle an options update by reloading the entry."""
     await hass.config_entries.async_reload(entry.entry_id)
