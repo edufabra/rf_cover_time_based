@@ -1,0 +1,11 @@
+# Core dependencies for testing
+homeassistant
+pytest
+pytest-cov
+pytest-mock
+
+# For snapshot testing
+syrupy
+
+# For linting
+ruff
