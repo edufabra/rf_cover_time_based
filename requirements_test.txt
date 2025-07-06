@@ -1,11 +1,20 @@
-# Core dependencies for testing
+# Core Home Assistant library for type hinting and testing
 homeassistant
+
+# Core testing framework
 pytest
+
+# Test coverage reporting
 pytest-cov
+
+# Fixture for mocking objects
 pytest-mock
 
-# For snapshot testing
+# The missing library for testing Home Assistant custom components
+pytest-homeassistant-custom-component
+
+# Snapshot testing library
 syrupy
 
-# For linting
+# Linter and code formatter
 ruff

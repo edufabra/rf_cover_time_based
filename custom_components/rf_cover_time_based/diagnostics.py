@@ -9,11 +9,12 @@ from homeassistant.helpers.device_registry import (
     DeviceEntry,
 )
 from homeassistant.helpers.device_registry import (
-    # FIX 1: Import the modern helper function for getting the device registry.
     async_get as async_get_device_registry,
 )
 from homeassistant.helpers.entity_registry import (
-    # FIX 2: Import the modern helper function for getting the entity registry.
+    EntityRegistry,
+)
+from homeassistant.helpers.entity_registry import (
     async_get as async_get_entity_registry,
 )
 
@@ -40,7 +41,6 @@ async def async_get_config_entry_diagnostics(
     hass: HomeAssistant, entry: ConfigEntry
 ) -> dict[str, Any]:
     """Return diagnostics for a config entry."""
-    # REFACTOR: Use the imported helper function to get the device registry.
     device_registry = async_get_device_registry(hass)
     entity_registry = async_get_entity_registry(hass)
 
@@ -70,13 +70,12 @@ async def async_get_config_entry_diagnostics(
 
 
 def _find_entity_for_device(
-    entity_registry, device: DeviceEntry | None, platform: str
+    entity_registry: EntityRegistry, device: DeviceEntry | None, platform: str
 ) -> str | None:
     """Find the first entity of a given platform for a device."""
     if not device:
         return None
 
-    # REFACTOR: The entity_registry is now passed in, making this a pure function.
     for entity in entity_registry.entities.values():
         if entity.device_id == device.id and entity.platform == platform:
             return entity.entity_id

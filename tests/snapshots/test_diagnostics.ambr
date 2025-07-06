@@ -2,7 +2,7 @@
 # name: test_entry_diagnostics
   dict({
     'config_entry': dict({
-      'created_at': '2025-07-06T17:58:40.801918+00:00',
+      'created_at': '2025-07-06T18:02:45.642799+00:00',
       'data': dict({
         'close_command': 'b64:close_code',
         'device_class': 'shutter',
@@ -19,7 +19,7 @@
       'domain': 'rf_cover_time_based',
       'entry_id': 'test-shutter',
       'minor_version': 1,
-      'modified_at': '2025-07-06T17:58:40.801924+00:00',
+      'modified_at': '2025-07-06T18:02:45.642805+00:00',
       'options': dict({
       }),
       'pref_disable_new_entities': False,
