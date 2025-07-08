@@ -23,7 +23,7 @@ jobs:
         with:
           category: "integration"
 
-  # This job runs your own quality checks.
+    # This job runs your own quality checks.
   lint_and_test:
     name: Linting and Testing
     runs-on: ubuntu-latest
@@ -35,6 +35,18 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
+      # Add this step to cache dependencies
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          # The path to the cache directory
+          path: ~/.cache/pip
+          # A key that identifies the cache. It changes when requirements_test.txt changes.
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements_test.txt') }}
+          # A fallback key if the primary key doesn't match
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
       - name: Install dependencies
         run: |
