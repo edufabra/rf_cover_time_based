@@ -24,24 +24,32 @@ async def test_full_flow_implementation(hass: HomeAssistant) -> None:
     # Pre-create a remote entity for the flow to find
     hass.states.async_set("remote.test_gateway", "on")
 
-    # Start the flow
+    # Step 1: Start the flow, simulating a user clicking "Add Integration"
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
     )
+
+    # We should get a form back
     assert result["type"] == FlowResultType.FORM
     assert result["step_id"] == "user"
 
-    # Provide user input
+    # Step 2: Simulate the user filling out the form and submitting
+    # Use .copy() to prevent mutating the original MOCK_CONFIG
     result2 = await hass.config_entries.flow.async_configure(
         result["flow_id"],
-        user_input=MOCK_CONFIG,
+        user_input=MOCK_CONFIG.copy(),
     )
     await hass.async_block_till_done()
 
-    # Assert the flow finished and created an entry
+    # Assert the flow finished and created an entry with the correct data
     assert result2["type"] == FlowResultType.CREATE_ENTRY
     assert result2["title"] == MOCK_CONFIG["name"]
-    assert result2["data"] == MOCK_CONFIG
+    assert result2["data"] == {}  # Data should be empty now
+
+    # Create a copy of the mock config without the name to compare options
+    expected_options = MOCK_CONFIG.copy()
+    del expected_options["name"]
+    assert result2["options"] == expected_options
 
 
 async def test_config_flow_aborts_if_no_remotes(hass: HomeAssistant) -> None:
@@ -62,15 +70,15 @@ async def test_config_flow_aborts_if_already_configured(hass: HomeAssistant) -> 
     # Pre-create a remote entity
     hass.states.async_set("remote.test_gateway", "on")
 
-    # Set up an initial entry using the data shortcut
+    # Set up an initial entry. Use .copy() to prevent data mutation.
     init_result = await hass.config_entries.flow.async_init(
-        DOMAIN, context={"source": config_entries.SOURCE_USER}, data=MOCK_CONFIG
+        DOMAIN, context={"source": config_entries.SOURCE_USER}, data=MOCK_CONFIG.copy()
     )
     assert init_result["type"] == FlowResultType.CREATE_ENTRY
 
-    # Try to configure a second time with the same data
+    # Try to configure a second time with the same data. Use .copy() again.
     second_result = await hass.config_entries.flow.async_init(
-        DOMAIN, context={"source": config_entries.SOURCE_USER}, data=MOCK_CONFIG
+        DOMAIN, context={"source": config_entries.SOURCE_USER}, data=MOCK_CONFIG.copy()
     )
 
     assert second_result["type"] == FlowResultType.ABORT
@@ -82,9 +90,9 @@ async def test_options_flow(hass: HomeAssistant) -> None:
     # Pre-create a remote entity
     hass.states.async_set("remote.test_gateway", "on")
 
-    # 1. Set up the initial config entry by running the user flow
+    # 1. Set up the initial config entry. Use .copy().
     init_result = await hass.config_entries.flow.async_init(
-        DOMAIN, context={"source": config_entries.SOURCE_USER}, data=MOCK_CONFIG
+        DOMAIN, context={"source": config_entries.SOURCE_USER}, data=MOCK_CONFIG.copy()
     )
     await hass.async_block_till_done()
 
@@ -92,7 +100,7 @@ async def test_options_flow(hass: HomeAssistant) -> None:
     config_entry = init_result["result"]
     assert config_entry is not None
 
-    # 2. Start the options flow using the created entry's ID
+    # 2. Start the options flow
     options_result = await hass.config_entries.options.async_init(
         config_entry.entry_id
     )
@@ -101,10 +109,8 @@ async def test_options_flow(hass: HomeAssistant) -> None:
 
     # 3. Submit new data to the options flow
     new_travel_time = 25
-    # Create a dictionary for the options, excluding the 'name' key.
-    options_data = {
-        key: MOCK_CONFIG[key] for key in MOCK_CONFIG if key != "name"
-    }
+    # Get the current options and modify them
+    options_data = config_entry.options.copy()
     options_data["travelling_time_down"] = new_travel_time
 
     updated_options_result = await hass.config_entries.options.async_configure(
@@ -113,9 +119,8 @@ async def test_options_flow(hass: HomeAssistant) -> None:
     )
     await hass.async_block_till_done()
 
-    # 4. Assert that the flow finished and the config entry's OPTIONS were updated
+    # 4. Assert that the flow finished and the config entry's options were updated
     assert updated_options_result["type"] == FlowResultType.CREATE_ENTRY
-    # The options flow modifies the `options` attribute, not `data`.
     assert config_entry.options["travelling_time_down"] == new_travel_time
-    # Verify that the original data is unchanged
-    assert config_entry.data["travelling_time_down"] == MOCK_CONFIG["travelling_time_down"]
+    # Verify that the original data is still empty and unchanged
+    assert config_entry.data == {}

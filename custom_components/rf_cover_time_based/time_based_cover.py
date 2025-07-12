@@ -55,7 +55,7 @@ class TimeBasedCover(CoverEntity, RestoreEntity):
         self.config_entry = config_entry
 
         # Set initial attributes from the config entry
-        self._attr_name = config_entry.data[CONF_NAME]
+        self._attr_name = config_entry.title
         self._attr_unique_id = config_entry.entry_id
         self._attr_device_class = config_entry.data.get(CONF_DEVICE_CLASS)
         self._attr_supported_features = (
