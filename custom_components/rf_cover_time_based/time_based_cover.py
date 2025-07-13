@@ -13,7 +13,6 @@ from homeassistant.components.cover import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     CONF_DEVICE_CLASS,
-    CONF_NAME,
     STATE_CLOSED,
     STATE_CLOSING,
     STATE_OPEN,
@@ -54,10 +53,9 @@ class TimeBasedCover(CoverEntity, RestoreEntity):
         self.hass = hass
         self.config_entry = config_entry
 
-        # Set initial attributes from the config entry
+        # Set immutable attributes from the config entry
         self._attr_name = config_entry.title
         self._attr_unique_id = config_entry.entry_id
-        self._attr_device_class = config_entry.data.get(CONF_DEVICE_CLASS)
         self._attr_supported_features = (
             CoverEntityFeature.OPEN
             | CoverEntityFeature.CLOSE
@@ -65,10 +63,10 @@ class TimeBasedCover(CoverEntity, RestoreEntity):
             | CoverEntityFeature.SET_POSITION
         )
 
-        # Load configuration from the entry's data and options
+        # Load all configuration values. This method will be reused for options updates.
         self._load_config()
 
-        # Initialize the travel calculator with the configured travel times
+        # Initialize the travel calculator. It will be re-initialized if options change.
         self.travel_calculator = TravelCalculator(
             self._travel_time_down, self._travel_time_up
         )
@@ -84,6 +82,12 @@ class TimeBasedCover(CoverEntity, RestoreEntity):
         """Load and apply the latest configuration from the config entry."""
         # Options flow values take precedence over initial data
         config = {**self.config_entry.data, **self.config_entry.options}
+
+        # --- THIS IS THE FIX ---
+        # The device_class is now correctly loaded from the merged config
+        self._attr_device_class = config.get(CONF_DEVICE_CLASS)
+        # --- END OF THE FIX ---
+
         self._remote_entity_id = config[CONF_REMOTE_ENTITY]
         self._open_command = config[CONF_OPEN_COMMAND]
         self._close_command = config[CONF_CLOSE_COMMAND]
@@ -150,6 +154,7 @@ class TimeBasedCover(CoverEntity, RestoreEntity):
     ) -> None:
         """Handle an options update."""
         _LOGGER.debug("Reloading configuration from options flow")
+        # Reload all config values and re-initialize the travel calculator
         self._load_config()
         self.travel_calculator = TravelCalculator(
             self._travel_time_down, self._travel_time_up
