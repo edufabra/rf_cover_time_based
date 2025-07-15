@@ -1,7 +1,7 @@
 {
   "domain": "rf_cover_time_based",
   "name": "RF Cover Time Based",
-  "version": "2025.7.4",
+  "version": "2025.7.5",
   "documentation": "https://github.com/edufabra/rf_cover_time_based",
   "issue_tracker": "https://github.com/edufabra/rf_cover_time_based/issues",
   "codeowners": ["@edufabra"],

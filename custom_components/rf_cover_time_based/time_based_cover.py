@@ -13,13 +13,10 @@ from homeassistant.components.cover import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     CONF_DEVICE_CLASS,
-    STATE_CLOSED,
-    STATE_CLOSING,
-    STATE_OPEN,
-    STATE_OPENING,
     STATE_UNAVAILABLE,
 )
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.event import (
     async_track_state_change_event,
     async_track_time_interval,
@@ -33,12 +30,12 @@ from .const import (
     CONF_STOP_COMMAND,
     CONF_TRAVELLING_TIME_DOWN,
     CONF_TRAVELLING_TIME_UP,
+    DOMAIN,
 )
 from .travelcalculator import TravelCalculator, TravelStatus
 
 _LOGGER = logging.getLogger(__name__)
 
-# The frequency at which the cover's position is updated.
 UPDATE_INTERVAL = timedelta(seconds=0.1)
 
 
@@ -53,7 +50,6 @@ class TimeBasedCover(CoverEntity, RestoreEntity):
         self.hass = hass
         self.config_entry = config_entry
 
-        # Set immutable attributes from the config entry
         self._attr_name = config_entry.title
         self._attr_unique_id = config_entry.entry_id
         self._attr_supported_features = (
@@ -63,31 +59,29 @@ class TimeBasedCover(CoverEntity, RestoreEntity):
             | CoverEntityFeature.SET_POSITION
         )
 
-        # Load all configuration values. This method will be reused for options updates.
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, self.config_entry.entry_id)},
+            name=self.config_entry.title,
+            manufacturer="RF Cover Time Based",
+            model="Time Based RF Cover",
+        )
+
         self._load_config()
 
-        # Initialize the travel calculator. It will be re-initialized if options change.
         self.travel_calculator = TravelCalculator(
             self._travel_time_down, self._travel_time_up
         )
 
-        # Initialize position to None. It will be set during state restoration.
-        self._attr_current_cover_position = None
-        self._attr_is_closed = None
-
-        # A callback to cancel the periodic position updater
-        self._updater_cancel_callback = None
+        # Initialize internal state attributes
+        self._attr_current_cover_position: int | None = None
+        self._attr_is_closed: bool | None = None
+        self._updater_cancel_callback: callback | None = None
 
     def _load_config(self) -> None:
         """Load and apply the latest configuration from the config entry."""
-        # Options flow values take precedence over initial data
         config = {**self.config_entry.data, **self.config_entry.options}
 
-        # --- THIS IS THE FIX ---
-        # The device_class is now correctly loaded from the merged config
         self._attr_device_class = config.get(CONF_DEVICE_CLASS)
-        # --- END OF THE FIX ---
-
         self._remote_entity_id = config[CONF_REMOTE_ENTITY]
         self._open_command = config[CONF_OPEN_COMMAND]
         self._close_command = config[CONF_CLOSE_COMMAND]
@@ -104,11 +98,8 @@ class TimeBasedCover(CoverEntity, RestoreEntity):
     async def async_added_to_hass(self) -> None:
         """Run when entity about to be added to hass."""
         await super().async_added_to_hass()
-
-        # Restore the last known state of the cover.
         await self._async_restore_state()
 
-        # Set up listeners for remote availability and options updates.
         self.async_on_remove(
             async_track_state_change_event(
                 self.hass,
@@ -117,10 +108,6 @@ class TimeBasedCover(CoverEntity, RestoreEntity):
             )
         )
         self.config_entry.add_update_listener(self._handle_options_update)
-
-        # Register the updater cancellation as a cleanup callback.
-        # This ensures that any running timer is stopped when the entity is
-        # unloaded, preventing the "Lingering timer" error in tests.
         self.async_on_remove(self._cancel_updater)
 
     async def _async_restore_state(self) -> None:
@@ -133,15 +120,18 @@ class TimeBasedCover(CoverEntity, RestoreEntity):
         ) is not None:
             _LOGGER.debug("Restoring cover position to %s", last_position)
             restored_position = int(last_position)
-
-        # If no state was restored, default to the fully open position.
-        if restored_position is None:
+        else:
             _LOGGER.debug("No previous state found. Defaulting to open position.")
             restored_position = 100
 
         self.travel_calculator.set_known_position(restored_position)
+        self._update_position_attributes()
+
+    @callback
+    def _update_position_attributes(self) -> None:
+        """Update the position and is_closed attributes from the calculator."""
         self._attr_current_cover_position = self.travel_calculator.current_position()
-        self._attr_is_closed = self.current_cover_position == 0
+        self._attr_is_closed = self._attr_current_cover_position == 0
 
     @callback
     def _handle_remote_availability_change(self, *args: Any) -> None:
@@ -154,7 +144,6 @@ class TimeBasedCover(CoverEntity, RestoreEntity):
     ) -> None:
         """Handle an options update."""
         _LOGGER.debug("Reloading configuration from options flow")
-        # Reload all config values and re-initialize the travel calculator
         self._load_config()
         self.travel_calculator = TravelCalculator(
             self._travel_time_down, self._travel_time_up
@@ -166,48 +155,42 @@ class TimeBasedCover(CoverEntity, RestoreEntity):
         is_awning = self.device_class == "awning"
         if direction == TravelStatus.OPENING:
             return self._close_command if is_awning else self._open_command
-        # Assumes direction is TravelStatus.CLOSING
         return self._open_command if is_awning else self._close_command
 
+    async def _async_trigger_travel(self, target_position: int) -> None:
+        """Start a cover movement to a specific target position."""
+        travel_direction = self.travel_calculator.start_travel(target_position)
+        if not travel_direction:
+            return
+
+        command = self._get_command_for_direction(travel_direction)
+        await self._async_handle_command(command)
+        self._schedule_updater()
+        self.async_write_ha_state()
+
     async def async_close_cover(self, **kwargs: Any) -> None:
-        """Close the cover."""
-        if self.travel_calculator.start_travel(0):
-            command = self._get_command_for_direction(TravelStatus.CLOSING)
-            await self._async_handle_command(command)
-            self._schedule_updater()
-            self.async_write_ha_state()
+        """Service call to close the cover."""
+        await self._async_trigger_travel(0)
 
     async def async_open_cover(self, **kwargs: Any) -> None:
-        """Open the cover."""
-        if self.travel_calculator.start_travel(100):
-            command = self._get_command_for_direction(TravelStatus.OPENING)
-            await self._async_handle_command(command)
-            self._schedule_updater()
-            self.async_write_ha_state()
+        """Service call to open the cover."""
+        await self._async_trigger_travel(100)
 
     async def async_stop_cover(self, **kwargs: Any) -> None:
-        """Stop the cover."""
+        """Service call to stop the cover."""
         if self.travel_calculator.stop_travel():
             self._cancel_updater()
-            position = self.travel_calculator.current_position()
-            self._attr_current_cover_position = position
+            self._update_position_attributes()
             await self._async_handle_command(self._stop_command)
             self.async_write_ha_state()
 
     async def async_set_cover_position(self, **kwargs: Any) -> None:
-        """Set the cover to a specific position."""
-        target_position = kwargs[ATTR_POSITION]
-        travel_direction = self.travel_calculator.start_travel(target_position)
-
-        if travel_direction:
-            command = self._get_command_for_direction(travel_direction)
-            await self._async_handle_command(command)
-            self._schedule_updater()
-            self.async_write_ha_state()
+        """Service call to set the cover to a specific position."""
+        await self._async_trigger_travel(kwargs[ATTR_POSITION])
 
     @callback
     def _schedule_updater(self) -> None:
-        """Schedule the periodic position updater."""
+        """Schedule the periodic position updater task."""
         self._cancel_updater()
         self._updater_cancel_callback = async_track_time_interval(
             self.hass, self._async_update_position, UPDATE_INTERVAL
@@ -215,7 +198,7 @@ class TimeBasedCover(CoverEntity, RestoreEntity):
 
     @callback
     def _cancel_updater(self) -> None:
-        """Cancel the periodic position updater."""
+        """Cancel the periodic position updater task."""
         if self._updater_cancel_callback:
             self._updater_cancel_callback()
             self._updater_cancel_callback = None
@@ -223,13 +206,10 @@ class TimeBasedCover(CoverEntity, RestoreEntity):
     @callback
     def _async_update_position(self, *args: Any) -> None:
         """Periodically update the cover's position during travel."""
-        is_still_moving = self.travel_calculator.update_position()
-        position = self.travel_calculator.current_position()
-        self._attr_current_cover_position = position
-
-        if not is_still_moving:
+        if not self.travel_calculator.update_position():
             self._cancel_updater()
 
+        self._update_position_attributes()
         self.async_write_ha_state()
 
     async def _async_handle_command(self, command: str) -> None:
@@ -249,29 +229,18 @@ class TimeBasedCover(CoverEntity, RestoreEntity):
     @property
     def is_opening(self) -> bool | None:
         """Return if the cover is opening or not."""
-        if self._attr_current_cover_position is None:
+        if self.current_cover_position is None:
             return None
         return self.travel_calculator.is_opening()
 
     @property
     def is_closing(self) -> bool | None:
         """Return if the cover is closing or not."""
-        if self._attr_current_cover_position is None:
+        if self.current_cover_position is None:
             return None
         return self.travel_calculator.is_closing()
 
-    @property
-    def is_closed(self) -> bool | None:
-        """Return if the cover is closed or not."""
-        if self._attr_current_cover_position is None:
-            return None
-        return self._attr_current_cover_position == 0
-
-    @property
-    def state(self) -> str:
-        """Return the state of the cover."""
-        if self.is_opening:
-            return STATE_OPENING
-        if self.is_closing:
-            return STATE_CLOSING
-        return STATE_OPEN if not self.is_closed else STATE_CLOSED
+    # The `state` and `is_closed` properties are now inherited from the base
+    # CoverEntity class. They automatically use `is_opening`, `is_closing`,
+    # and `current_cover_position` to determine the correct state,
+    # which avoids redundant code.
